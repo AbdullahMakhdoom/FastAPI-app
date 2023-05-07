@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Annotated
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Path, Query
 from pydantic import BaseModel
 
 class ModelName(str, Enum):
@@ -17,10 +17,10 @@ async def root():
     return {"message" : "Hello World"}
 
 # Path parameters
-@app.get("/items/{items_id}")
+""" @app.get("/items/{items_id}")
 async def read_item(item_id: int):
     return {"item_id": item_id}
-
+"""
 
 @app.get("/models/{model_name}")
 async def get_model(model_name: ModelName):
@@ -75,7 +75,7 @@ async def create_items(item_id: int, item: Item, q: str | None = None):
 
 # 6 - String validation of Query Parameters
 
-@app.get("/items/")
+""" @app.get("/items/")
 async def read_items(
     q: Annotated[str | None,
                 Query(
@@ -93,11 +93,22 @@ async def read_items(
         results.update({"q": q})
     return results
 
-
+ 
 @app.get("/items_list/")
 async def read_items_list(q: Annotated[list[str] | None, Query()] = None):
     results = {"items": [{"items_id": "Foo"}, {"item_id": "Bar"}]}
     if q:
         results.update({"q": q})
     return results
+"""
 
+# 7 - Path Validation
+@app.get("/items/{item_id}")
+async def read_items(
+    item_id: Annotated[int, Path(title="The ID of the item to get", gt=1, le=1000)],
+    q: Annotated[str | None, Query(alias="item-query")] = None,
+):
+    results = {"item_id": item_id}
+    if q:
+        results.update({"q": q})
+    return results
